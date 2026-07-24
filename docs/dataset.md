@@ -1,5 +1,7 @@
 # Dataset
-Датасет взят из [IBM Transactions for Anti Money Laundering (AML)](https://www.kaggle.com/datasets/ealtman2019/ibm-transactions-for-anti-money-laundering-aml/data) 
+Датасет взят из [IBM Transactions for Anti Money Laundering (AML)](https://www.kaggle.com/datasets/ealtman2019/ibm-transactions-for-anti-money-laundering-aml/data) - синтетические банковские транзакции, сгенерированные IBM для задачи anti money laundering.
+Доступно несколько версий разного размера: `HI-Small`, `HI-Medium`, `HI-Large`, `LI-Small`, `LI-Medium`, `LI-Large`
+(HI = *Higher Illicit ratio*, LI = *Lower Illicit ratio*; Small/Medium/Large — объём данных).
 
 ## Структура
 | Поле           | Тип      | Описание               |

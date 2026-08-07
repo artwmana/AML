@@ -220,3 +220,6 @@ __marimo__/
 data/raw/
 .jupyter/kernels/aml-venv/kernel.json
 artifacts/
+.vscode/
+catboost_info/
+data/

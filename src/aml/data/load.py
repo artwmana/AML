@@ -52,55 +52,40 @@ def load_raw_data(file_name: str = "raw", path: str | Path = PATH, dtypes=DTYPES
 
     return df
 
-def load_dataset_splits(input_dir: str | Path = PATH, 
+def load_dataset_splits(sets: list = None,
+                        input_dir: str | Path = PATH, 
                         target_col: str = "Is Laundering",
-                        sets: list = None,
                         ) -> dict[str, tuple[pd.DataFrame, pd.Series]]:
     """
     Loads splits of the dataset from Parquet files, separated by X and Y.
     
+    sets: None - if you need to load all splits without raw (train, val, test)
+            ["...", "..."] - if you only need a few of them (["train", "val"])
+            "all" - if you need absolutely all splits (raw, train, val, test)
     input_dir: path to the folder containing the files.
     target_col: target ("Is Laundering")
-    sets: None - if you need to load all splits
-        ["..."] - if you only need a few of them (["train", "val"])
     """
-
     input_path = Path(input_dir)
 
     if not input_path.exists():
         raise FileNotFoundError(f"Specified directory does not exist: {input_path}")
 
-    splits = {}
-
-    if not sets:
-        for file_path in input_path.glob('*.parquet'):
-            split_name = file_path.stem
-            df = pd.read_parquet(file_path)
-
-            actual_target = (
-                target_col
-                if target_col in df.columns
-                else ("target" if "target" in df.columns else df.columns[-1])
-                )
-            X = df.drop(columns=[actual_target])
-            y = df[actual_target]
-            splits[split_name] = (X, y)
+    if sets is None:
+        target_splits = {p.stem for p in input_path.glob("*.parquet")} - {"raw"}
+    elif sets in ("all", ["all"]):
+        target_splits = {p.stem for p in input_path.glob("*.parquet")}
     else:
-        for split_name in sets:
-            if ".parquet" in split_name:
-                file_path = input_path / split_name
-            else:
-                file_path = input_path / f"{split_name}.parquet"
+        target_splits = set(sets) if isinstance(sets, list) else {sets}
 
-            df = pd.read_parquet(file_path)
-            actual_target = (
-                target_col
-                if target_col in df.columns
-                else ("target" if "target" in df.columns else df.columns[-1])
-                )
-            X = df.drop(columns=[actual_target])
-            y = df[actual_target]
-            splits[split_name] = (X, y)
+    splits = {}
+    for split_name in target_splits:
+        file_path = input_path / f"{split_name}.parquet"
+        
+        if not file_path.exists():
+            continue 
+            
+        df = pd.read_parquet(file_path)
+        splits[split_name] = (df.drop(columns=[target_col]), df[target_col])
 
     if not splits:
         raise FileNotFoundError(
